@@ -1,0 +1,66 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+
+def estimate_price(mileage, theta0, theta1):
+    return theta0 + (theta1 * mileage)
+
+
+def train_model(data_file, learning_rate):
+    data = pd.read_csv(data_file)
+
+    data["km"] = np.log(data["km"])
+    data["price"] = np.log(data["price"])
+
+    X = data["km"].values
+    y = data["price"].values
+
+    print(X)
+    print(y)
+
+    m = len(y)
+    
+    theta0 = 0
+    theta1 = 0
+    
+    # perform linear regression
+    for _ in range(iterations):
+        tmp_theta0 = 0
+        tmp_theta1 = 0
+        # print(f"theta0: {theta0}, theta1: {theta1}")
+        for j in range(m):
+            tmp_theta0 += (estimate_price(X[j], theta0, theta1) - y[j])
+            tmp_theta1 += (estimate_price(X[j], theta0, theta1) - y[j]) * X[j]
+
+        theta0 = theta0 - (learning_rate * tmp_theta0) / m
+        theta1 = theta1 - (learning_rate * tmp_theta1) / m
+    return theta0, theta1
+
+
+data_file = "../data.csv"
+learning_rate = 0.01
+iterations = 300000
+theta0, theta1 = train_model(data_file, learning_rate)
+
+print("Theta0: {}".format(theta0))
+print("Theta1: {}".format(theta1))
+
+mileage = float(input("Enter the mileage of the car: "))
+print(mileage)
+mileage = np.log(mileage)
+estimated_price = estimate_price(mileage, theta0, theta1)
+estimated_price = np.exp(estimated_price)
+print(estimated_price)
+
+normalized_mielage = mileage
+normalized_estimated_price = np.log(estimated_price)
+print(f'Normalized mileage: {normalized_mielage}, normalized estimated price: {normalized_estimated_price}')
+
+data = pd.read_csv(data_file)
+data["km"] = np.log(data["km"])
+data["price"] = np.log(data["price"])
+plt.scatter(data["km"], data["price"], color='black')
+plt.plot(data["km"], theta0 + (theta1 * data["km"]), color='red')
+plt.show()
+
