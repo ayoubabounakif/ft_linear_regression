@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
 
 def estimate_price(mileage, theta0, theta1):
     return theta0 + (theta1 * mileage)
@@ -24,7 +23,6 @@ def train_model(data_file, learning_rate):
     theta0 = 0
     theta1 = 0
     
-    # perform linear regression
     for _ in range(iterations):
         tmp_theta0 = 0
         tmp_theta1 = 0
