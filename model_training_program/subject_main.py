@@ -2,6 +2,16 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
+def cost_function(w, b, X, y):
+    m = len(y)
+    total_cost = 0
+    for i in range(m):
+        total_cost += (y[i] - (w * X[i] + b)) ** 2
+    return total_cost / (2 * m)
+
+
+
 def estimate_price(mileage, theta0, theta1):
     return theta0 + (theta1 * mileage)
 
@@ -15,8 +25,8 @@ def train_model(data_file, learning_rate):
     X = data["km"].values
     y = data["price"].values
 
-    print(X)
-    print(y)
+    # print(X)
+    # print(y)
 
     m = len(y)
     
@@ -41,19 +51,28 @@ learning_rate = 0.01
 iterations = 300000
 theta0, theta1 = train_model(data_file, learning_rate)
 
+print('--------------------------------')
 print("Theta0: {}".format(theta0))
 print("Theta1: {}".format(theta1))
+print('--------------------------------')
 
 mileage = float(input("Enter the mileage of the car: "))
 print(mileage)
 mileage = np.log(mileage)
 estimated_price = estimate_price(mileage, theta0, theta1)
 estimated_price = np.exp(estimated_price)
-print(estimated_price)
+print(f'Estimated price: {estimated_price}')
+print('--------------------------------')
 
 normalized_mielage = mileage
 normalized_estimated_price = np.log(estimated_price)
 print(f'Normalized mileage: {normalized_mielage}, normalized estimated price: {normalized_estimated_price}')
+print('--------------------------------')
+
+data = pd.read_csv(data_file)
+error = cost_function(theta1, theta0, np.log(data["km"]), np.log(data["price"]))
+print(f'Normalized error: {error}, error: {np.exp(error)}')
+print('--------------------------------')
 
 data = pd.read_csv(data_file)
 data["km"] = np.log(data["km"])
