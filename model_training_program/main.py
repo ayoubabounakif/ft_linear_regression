@@ -1,46 +1,47 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
 
-def gradient_descent(current_w, current_b, points, learning_rate):
-    w_gradient = 0
-    b_gradient = 0
 
-    n = len(points)
+def estimate_price(mileage, theta0, theta1):
+    return theta0 + (theta1 * mileage)
 
-    for i in range(n):
-        x = points.iloc[i].km
-        y = points.iloc[i].price
 
-        w_gradient += -(2 / n) * x * (y - (current_w * x + current_b))
-        b_gradient += -(2 / n) * (y - (current_w * x + current_b))
+def train_model(data_file, learning_rate):
+    data = pd.read_csv(data_file)
 
-    w = current_w - w_gradient * learning_rate
-    b = current_b - b_gradient * learning_rate
-    return w, b
+    data["km"] = np.log(data["km"])
+    data["price"] = np.log(data["price"])
 
-def main():
-    data = pd.read_csv("../data.csv")
+    X = data["km"].values
+    y = data["price"].values
 
-    scaler = MinMaxScaler()
-    data[["km", "price"]] = scaler.fit_transform(data[["km", "price"]])
+    m = len(y)
 
-    print(data)
+    theta0 = 0
+    theta1 = 0
 
-    # θ0, θ1 == w, b
-    w = 0
-    b = 0
-    lr = 0.01
-    epochs = 5000
+    for _ in range(iterations):
+        tmp_theta0 = 0
+        tmp_theta1 = 0
+        for j in range(m):
+            tmp_theta0 += estimate_price(X[j], theta0, theta1) - y[j]
+            tmp_theta1 += (estimate_price(X[j], theta0, theta1) - y[j]) * X[j]
 
-    for _ in range(epochs):
-        w, b = gradient_descent(w, b, data, lr)
-        print(f"w: {w}, b: {b}")
+        theta0 = theta0 - (learning_rate * tmp_theta0) / m
+        theta1 = theta1 - (learning_rate * tmp_theta1) / m
+    return theta0, theta1
 
-    plt.scatter(data.km, data.price, color='black')
-    plt.plot(data.km, w * data.km + b, color='red')
-    plt.show()
 
-if __name__ == "__main__":
-    main()
+data_file = "../data.csv"
+learning_rate = 0.01
+iterations = 300000
+theta0, theta1 = train_model(data_file, learning_rate)
+
+print("--------------------------------")
+print(f"Theta0: {theta0}")
+print(f"Theta1: {theta1}")
+print("--------------------------------")
+
+with open("../hyperparameters.txt", "w") as f:
+    f.write(f"theta0 = {theta0}\n")
+    f.write(f"theta1 = {theta1}\n")
